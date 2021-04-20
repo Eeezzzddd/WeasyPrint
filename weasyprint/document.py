@@ -587,6 +587,9 @@ class Page:
         #:   to a resource to attach to the document.
         self.links = []
 
+
+        self.images = []
+
         #: The :obj:`dict` mapping each anchor name to its target, an
         #: ``(x, y)`` point in CSS pixels from the top-left of the page.
         self.anchors = {}
@@ -678,6 +681,12 @@ class Page:
             if has_anchor:
                 self.anchors[anchor_name] = pos_x, pos_y
 
+        if box.element_tag == "img":
+            pos_x, pos_y, width, height = box.hit_area()
+            self.images.append(
+                    (box, (pos_x, pos_y, pos_x + width, pos_y + height))
+                    )
+            
         for child in box.all_children():
             self._gather_links_and_bookmarks(child, matrix)
 
@@ -1085,6 +1094,9 @@ class Document:
                     if 'Annots' not in pdf_page:
                         pdf_page['Annots'] = pydyf.Array()
                     pdf_page['Annots'].append(annot.reference)
+
+            breakpoint()
+            for image in page.images:
 
             # Bookmarks
             for level, label, (point_x, point_y), state in page.bookmarks:
